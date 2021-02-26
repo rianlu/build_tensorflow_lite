@@ -74,3 +74,75 @@ ifeq ($(TARGET), android_armv7a)
 #    -lpthread \    
 
 endif
+
+ifeq ($(TARGET), android_x86_64)
+  TARGET_ARCH := x86_64
+  TARGET_TOOLCHAIN_PREFIX := x86_64-linux-android-
+  TARGET_OUT_DIR := android_x86_64
+
+  CXXFLAGS += \
+    -march=x86-64 \
+    -funsafe-math-optimizations \
+    -ftree-vectorize \
+    -fPIC
+
+  CFLAGS += \
+    -march=x86-64 \
+    -funsafe-math-optimizations \
+    -ftree-vectorize \
+    -fPIC
+
+  LDFLAGS := \
+    -Wl,--no-export-dynamic \
+    -Wl,--exclude-libs,ALL \
+    -Wl,--gc-sections \
+    -Wl,--as-needed \
+    -static-libstdc++ \
+
+
+  LIBS := \
+    -latomic \
+    -lm \
+    -ldl
+
+#     -lpthread \
+
+
+endif
+
+ifeq ($(TARGET), android_x86)
+    TARGET_ARCH := x86
+    TARGET_TOOLCHAIN_PREFIX := i686-linux-android-
+    TARGET_OUT_DIR := android_x86
+
+  CXXFLAGS += \
+    -march=i686 \
+    -funsafe-math-optimizations \
+    -ftree-vectorize \
+    -fPIC
+
+  CFLAGS += \
+    -march=i686 \
+    -funsafe-math-optimizations \
+    -ftree-vectorize \
+    -fPIC
+
+  LDFLAGS := \
+    -Wl,--no-export-dynamic \
+    -Wl,--exclude-libs,ALL \
+    -Wl,--gc-sections \
+    -Wl,--as-needed \
+    -static-libstdc++ \
+
+# del     
+# -lrt
+
+  LIBS := \
+    -latomic \
+    -lm \
+    -ldl \
+
+# del    
+#    -lpthread \    
+
+endif
