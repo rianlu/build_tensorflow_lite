@@ -19,11 +19,11 @@
 生成对应架构的工具链
 
 ```bash
-$ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch arm --api 19 --install-dir arm-android-toolchain
+$ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch arm --api 21 --install-dir arm-android-toolchain
 
 $ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch arm64 --api 21 --install-dir arm64-android-toolchain
 
-$ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch x86 --api 19 --install-dir x86-android-toolchain
+$ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch x86 --api 21 --install-dir x86-android-toolchain
 
 $ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch x86_64 --api 21 --install-dir x86_64-android-toolchain
 ```
