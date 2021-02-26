@@ -88,6 +88,6 @@ clang70++: error: linker command failed with exit code 1 (use -v to see invocati
 make: *** [/Users/enjoymusic/Development/tensorflow-repository/tensorflow-2.4.1/tensorflow/lite/tools/make/gen/android_armv7a/bin/benchmark_model] Error 1
 ```
 
-这个对生成的`benchmark-lib.a`可能有影响，但是对`libtensorflow-lite.a`影响
+这个对生成的`benchmark-lib.a`可能有影响，但是对`libtensorflow-lite.a`无影响
 
 
