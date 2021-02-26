@@ -30,7 +30,7 @@ fi
 
 # EXTRA_CXXFLAGS="-sysroot=/opt/ndk/standalone-toolchain/ndkr20-aarch64/sysroot"
 
-export ndk_standalone_root="/opt/ndk/standalone-toolchain/ndkr20-aarch64"
+export ndk_standalone_root="/Users/lu/Development/android_toolchains/arm64-android-toolchain"
 export EXTRA_CXXFLAGS="-isysroot=${ndk_standalone_root}/sysroot"
 export CC_PREFIX=${ndk_standalone_root}/bin/
 
