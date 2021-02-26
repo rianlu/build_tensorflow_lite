@@ -1,109 +1,93 @@
-# build tensorflow lite static lib for android
-# 
+# 构建Tensorflow Lite 静态库
 
-build static tensorflow lite for android(only "armeabi-v7a",'arm64-v8a')
+#### 简介
 
-
-1. tensorflow(tested tensorflow 2.3.0) 
-   url: https://github.com/tensorflow/tensorflow/tags
-
-2. NDK (ndkr20 tested)
-    ndk download url: https://developer.android.google.cn/ndk/downloads/
-
-    make standalone toolchain
-    https://developer.android.google.cn/ndk/guides/standalone_toolchain
-    # 
-    $ $NDK/build/tools/make_standalone_toolchain.py \
-    --arch arm --api 21 --install-dir /tmp/my-android-toolchain
-
-
-3. build
-
-3.1 clone build script
-
-    git clone https://github.com/sunfrank1987/build_tensorflow_lite.git
-    + tensorflow/
-        - BUILD
-    + tensorflow/lite/tools/make/
-        - build_android_armv7a.sh*
-        - build_android_armv8a.sh*
-        - Makefile.android
-        + target/
-            - android_makefile.inc
-
-3.2 copy script to tensorflow path
-    + ${tensorflow_root}/tensorflow/lite/tools/make
-    + ${tensorflow_root}/tensorflow/lite/tools/make/target
-
-
-3.3 edit 
-
-    edit build_android_armv7a.sh or build_android_armv8a.sh as you need:
-
-        export ndk_standalone_root="/opt/ndk/standalone-toolchain/ndkr20-aarch64"
-
-3.4 download tensorflow lite dependencies
-
-    cd  ${tensorflow_root}/tensorflow/lite/tools/make
-
-    # download tensorflow lite dependencies
-    ./download_dependencies.sh
-    #
-
-#
-
-
-3.5 build
-    chmod +x build_android_armv7a.sh
-    ./build_android_armv7a.sh
-    
-
-    result:
-    + gen/android_armv7a 
-        + bin/
-            - benchmark_model
-            - benchmark_model_performance_options
-            - minimal
-        + lib/
-            - benchmark-lib.a
-            - libtensorflow-lite.a
-        + obj/
-            + tensorflow/
-                + core/
-                    .........
-                + lite/
-                    .........
-
-
-3.6 export include headers
-    
-    tensorflow bazel BUILD not support tensorflow lite headers export 
-
-    copy build_tensorflow_lite/tensorflow/BUILD context  genrule install_lite_headers to ${tensorflow_root}/tensorflow/BUILD file
-
-    $ bazel build --config=opt tensorflow:install_lite_headers
-
-
-    header file stored:
-
-    tensorflow lite headers
-        ${tensorflow_root}/bazel-bin/tensorflow/include_lite/
-    flatbuffers heades
-        ${tensorflow_root}/bazel-tensorflow-2.3.0/external/flatbuffers/include/
-
-3.7 Android Demo
-
-    https://github.com/sunfrank1987/build_tensorflow_lite/tree/master/demo/tflite-demo
-
-    test model from 
-    
-    https://www.tensorflow.org/lite/models/image_classification/overview
-
-    https://storage.googleapis.com/download.tensorflow.org/models/tflite/mobilenet_v1_1.0_224_quant_and_labels.zip
+`fork`的目的主要是记一下几个注意点，防止踩坑，顺便更新下仓库里的脚本，`demo`并未更新，请自行修改
 
 
 
+#### 准备
+
+这次试用的`Tensorflow`版本是`2.4.1`
+
+`NDK`版本为`r18b`
 
 
+
+#### 生成工具链
+
+生成对应架构的工具链
+
+```bash
+$ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch arm --api 19 --install-dir arm-android-toolchain
+
+$ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch arm64 --api 21 --install-dir arm64-android-toolchain
+
+$ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch x86 --api 19 --install-dir x86-android-toolchain
+
+$ANDROID_NDK/build/tools/make_standalone_toolchain.py --arch x86_64 --api 21 --install-dir x86_64-android-toolchain
+```
+
+
+
+#### 修改脚本
+
+下载对应的`Tensorflow`源码，把仓库里的`tensorflow/lite/tools/make/.sh`放到`Tensorflow`源码的对应位置，这里额外添加了`x86`以及`x86_64`的脚本
+
+然后把仓库里的`tensorflow/lite/tools/make/targets/android_makefile.inc`放到`Tensorflow`源码的对应位置，这里已经对`android_makefile.inc`作了修改，可以支持`arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64`四种架构
+
+然后修改`tensorflow/lite/tools/make/.sh`里的`ndk_standalone_root`，使其对应各个架构的工具链
+
+
+
+#### 修改Makefile.android
+
+如果使用的是`Tensorflow 2.4.1`可以直接使用仓库里的`Makefile.android`，原仓库里的`Makefile.android`对应的版本是`Tensorflow 2.3.0`，如果是更高版本，作如下修改：
+
+进入到`${tensorflow_root}/tensorflow/lite/tools/make`目录，将`Makefile`改为`Makefile.android`（可以先备份一下）
+
+```ini
+# 注释下面两行
+
+# TARGET_TOOLCHAIN_PREFIX :=
+# CC_PREFIX :=
+
+# 原
+PROFILER_SRCS := \
+	tensorflow/lite/profiling/memory_info.cc \
+	tensorflow/lite/profiling/platform_profiler.cc \
+	tensorflow/lite/profiling/time.cc
+	
+# 修改后
+PROFILER_SRCS := \
+	tensorflow/lite/profiling/memory_info.cc \
+	tensorflow/lite/profiling/platform_profiler.cc \
+	tensorflow/lite/profiling/atrace_profiler.cc \
+	tensorflow/lite/profiling/time.cc
+	
+# 原
+ifeq ($(TARGET_ARCH),aarch64)
+
+# 修改后
+ifeq ($(findstring $(TARGET_ARCH),  android_armv8a, android_armv7a),)
+```
+
+
+
+#### 执行脚本
+
+执行`./download_dependencies.sh`，下载`Tensorflow Lite`依赖
+
+执行`chmod +x build_android_xx.sh`以及`./build_android_xx.sh`
+
+可能会出现以下错误：
+
+```bash
+fatal error: -f/--auxiliary may not be used without -shared
+clang70++: error: linker command failed with exit code 1 (use -v to see invocation)
+make: *** [/Users/enjoymusic/Development/tensorflow-repository/tensorflow-2.4.1/tensorflow/lite/tools/make/gen/android_armv7a/bin/benchmark_model] Error 1
+```
+
+这个对生成的`benchmark-lib.a`可能有影响，但是对`libtensorflow-lite.a`影响
 
 
