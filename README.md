@@ -1,4 +1,4 @@
-# 构建Tensorflow Lite 静态库
+# 编译Tensorflow Lite 静态库
 
 #### 简介
 
