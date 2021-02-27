@@ -12,6 +12,11 @@
 
 `NDK`版本：`r18b`
 
+```bash
+git clone https://github.com/rianlu/build_tflite_static_library.git
+
+git clone https://github.com/tensorflow/tensorflow.git
+```
 
 
 #### 生成工具链
